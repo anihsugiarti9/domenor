@@ -1,0 +1,24 @@
+{
+  "name": "domenor",
+  "description": "domenor",
+  "repository": "https://github.com/anihsugiarti9/domenor",
+  "logo": "https://avatars.githubusercontent.com/u/1400?s=200&v=4",
+  "keywords": [
+    "node",
+    "express",
+    "python",
+    "cloud-development",
+    "heroku-api"
+  ],
+  "env": {
+    "GIT_REPO": {
+      "description": "URL of a git repo to clone (optional)",
+      "required": false
+    },
+    "PASSWORD": {
+      "description": "Create a password to log in",
+      "required": true
+    }
+  },
+  "stack": "container"
+}
