@@ -1,50 +1,42 @@
-FROM python:3.8.2-slim
+# Start from the code-server Debian base image
+FROM codercom/code-server:4.9.0
 
-ENV APP_HOME /app
-WORKDIR ${APP_HOME}
+USER coder
 
-COPY . ./
+# Apply VS Code settings
+COPY deploy-container/settings.json .local/share/code-server/User/settings.json
 
-# Install Ubuntu dependencies
-# libopencv-dev = opencv dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        tzdata \
-        libopencv-dev \ 
-        build-essential \
-        libssl-dev \
-        libpq-dev \
-        libcurl4-gnutls-dev \
-        libexpat1-dev \
-        gettext \
-        unzip \
-        supervisor \
-        python3-setuptools \
-        python3-pip \
-        python3-dev \
-        python3-venv \
-        python3-urllib3 \
-        git \
-        && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Use bash shell
+ENV SHELL=/bin/bash
 
-# Upgrade PIP
-RUN pip install pip pipenv --upgrade
+# Install unzip + rclone (support for remote filesystem)
+RUN sudo apt-get update && sudo apt-get install unzip -y
+RUN curl https://rclone.org/install.sh | sudo bash
 
-# sklearn opencv, numpy, and pandas
-RUN pip install scikit-learn opencv-contrib-python numpy pandas
+# Copy rclone tasks to /tmp, to potentially be used
+COPY deploy-container/rclone-tasks.json /tmp/rclone-tasks.json
 
-# tensorflow (including Keras)
-RUN pip install tensorflow keras
+# Fix permissions for code-server
+RUN sudo chown -R coder:coder /home/coder/.local
 
-# pytorch (cpu)
-RUN apt-get update && apt-get -y install gcc mono-mcs && rm -rf /var/lib/apt/lists/*
-RUN pip install torch==1.5.0+cpu torchvision==0.6.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+# You can add custom software and dependencies for your environment below
+# -----------
 
-# fastai
-RUN pip install fastai
+# Install a VS Code extension:
+# Note: we use a different marketplace than VS Code. See https://github.com/cdr/code-server/blob/main/docs/FAQ.md#differences-compared-to-vs-code
+# RUN code-server --install-extension esbenp.prettier-vscode
 
-# Project installs
-RUN pipenv install --skip-lock --system --dev
+# Install apt packages:
+# RUN sudo apt-get install -y ubuntu-make
 
-CMD ["./scripts/entrypoint.sh"]
+# Copy files: 
+# COPY deploy-container/myTool /home/coder/myTool
+
+# -----------
+
+# Port
+ENV PORT=8080
+
+# Use our custom entrypoint script first
+COPY deploy-container/entrypoint.sh /usr/bin/deploy-container-entrypoint.sh
+ENTRYPOINT ["/usr/bin/deploy-container-entrypoint.sh"]
