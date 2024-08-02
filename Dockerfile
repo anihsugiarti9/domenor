@@ -15,6 +15,6 @@ RUN pip3 install pandas scipy matplotlib && \
  
 USER root
 
-EXPOSE 8080
+EXPOSE 8888
 
-ENTRYPOINT [ "/bin/sh", "-c", "exec ${OPENVSCODE_SERVER_ROOT}/bin/openvscode-server --host 0.0.0.0 --port 8080 --without-connection-token \"${@}\"", "--" ]
+ENTRYPOINT [ "/bin/sh", "-c", "exec ${OPENVSCODE_SERVER_ROOT}/bin/openvscode-server --host 0.0.0.0 --port 8888 --without-connection-token \"${@}\"", "--" ]
